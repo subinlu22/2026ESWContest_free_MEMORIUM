@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>메모리움 설정</title>
+  <style>
+    :root{--ink:#263528;--muted:#80877e;--line:#e9ede8;--paper:#ffffff;--bg:#fbfcfa;--mint:#f2f5f0;--green:#24552c;--green2:#4e7947;--shadow:0 3px 10px rgba(43,57,45,.095)}
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(rgba(10,18,10,.4),rgba(10,18,10,.4)), url('/static/dashboard-bg.jpg') center/cover fixed no-repeat;font:12px/1.35 "Pretendard","Noto Sans KR",Arial,sans-serif;color:var(--ink);letter-spacing:-.25px}
+    .app{width:min(1440px,calc(100vw - 48px),calc((100vh - 48px) * 1.521));aspect-ratio:1080/710;margin:0;background:var(--bg);display:grid;grid-template-columns:164px 1fr;border:1px solid rgba(255,255,255,.5);border-radius:14px;box-shadow:0 45px 90px -20px rgba(0,0,0,.65),0 18px 40px rgba(0,0,0,.4);overflow:hidden}
+    aside{background:linear-gradient(180deg,#f8faf6,#fcfdfb);border-right:1px solid #e8ece6;padding:17px 18px;display:flex;flex-direction:column;overflow-y:auto}.brand{display:flex;gap:10px;align-items:center;margin:0 10px 22px}.brand b{font-size:20px;color:#233a29}.brand small{display:block;color:#838a80;font-size:10px;margin-top:2px}
+    nav a{display:flex;align-items:center;gap:12px;color:#566254;text-decoration:none;padding:10px 12px;border-radius:6px;margin:3px 0;font-size:11px}nav a span{font-size:15px;width:16px;text-align:center}nav a.active{background:linear-gradient(90deg,#2f6538,#214d2a);color:#fff;box-shadow:0 3px 7px rgba(59,91,57,.30)}
+    main{padding:14px 28px 24px;min-width:0;height:100%;overflow-y:auto;box-sizing:border-box}.top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:14px}.title p.eyebrow{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#8a9588;margin:0 0 4px}.title h1{font-size:18px;margin:0 0 4px}.title p.sub{font-size:10px;color:var(--muted);margin:0}
+    .notice{background:#fff;border:1px solid #e8ece7;border-radius:10px;padding:11px 15px;font-size:10px;font-weight:700;color:#596657;box-shadow:var(--shadow)}
+    .flash{background:#eef8ec;border:1px solid #c8ddc6;color:#31533a;border-radius:10px;padding:9px 13px;font-size:11px;font-weight:700;margin-bottom:12px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+    .med-list{max-height:110px;overflow-y:auto;margin-bottom:8px}
+    .card{background:#fff;border:1px solid #e8ece7;border-radius:10px;box-shadow:var(--shadow);padding:16px}
+    .card.tint{background:#e7eee4;border-color:#dce6d8}
+    .card h2{font-size:13px;margin:0}
+    .card .sub{font-size:9px;color:#858d83;margin:2px 0 0}
+    .card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+    .ico-badge{width:34px;height:34px;border-radius:10px;background:#e7eee4;color:#60765d;display:grid;place-items:center;font-size:15px}
+    .ico-badge.on-white{background:#fff}
+    .row-item{display:flex;justify-content:space-between;align-items:center;background:#f3f6f1;border:1px solid #e2e9df;border-radius:10px;padding:9px 11px;margin-bottom:8px;font-size:11px;font-weight:700}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:8px;padding:8px 13px;font-size:10px;font-weight:700;border:1px solid transparent;cursor:pointer;text-decoration:none}
+    .btn-dark{background:#24582d;color:#fff;width:100%;padding:11px}
+    .btn-dark:hover{background:#1b4522}
+    .btn-danger{background:#fdecec;color:#d43f3f}
+    .btn-ghost{background:#f3f6f1;color:#536250;border-color:#dfe7dc;width:100%;padding:9px}
+    .field{margin-bottom:10px}
+    .field label{display:block;font-size:9px;font-weight:700;color:#8a9588;margin-bottom:4px}
+    .field input[type=number],.field input[type=text]{width:100%;border:1px solid #dfe7dc;background:#f7faf5;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:800;outline:none;text-align:center}
+    .field input:focus{border-color:#60765d}
+    .field-row{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:end;background:#f3f6f1;border:1px solid #e2e9df;border-radius:10px;padding:9px;margin-bottom:8px}
+    .field-row .colon{padding-bottom:8px;font-weight:800;color:#8a9588;text-align:center}
+    .toggle-row{position:relative;display:flex;align-items:center;gap:10px;background:#f3f6f1;border-radius:10px;padding:10px;cursor:pointer;font-size:11px;font-weight:800;color:#364236;margin-bottom:10px}
+    .toggle-row input{position:absolute;opacity:0;width:0;height:0}
+    .toggle-track{width:38px;height:22px;border-radius:999px;background:#cbd4c9;position:relative;flex-shrink:0;transition:.2s}
+    .toggle-track:after{content:"";position:absolute;left:2px;top:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+    .toggle-row input:checked + .toggle-track{background:#60765d}
+    .toggle-row input:checked + .toggle-track:after{transform:translateX(16px)}
+    .status-box{background:#f3f6f1;border-radius:8px;padding:9px 11px;font-size:10px;font-weight:700;color:#596657;margin-bottom:12px}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+    .grid-2-inline{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+    .dial{display:grid;place-items:center;height:120px;border-radius:50%;border:14px solid #d8e2d5;margin-bottom:14px}
+    .dial strong{display:block;font-size:26px;color:#273527;text-align:center}
+    .dial small{display:block;font-size:9px;color:#879386;text-align:center}
+    .unit-input{display:flex;align-items:center;gap:8px;border:1px solid #dfe7dc;background:#fff;border-radius:10px;padding:9px 13px;margin-bottom:12px}
+    .unit-input input{flex:1;border:none;background:transparent;font-size:11px;font-weight:800;outline:none}
+    @media(max-width:850px){.app{grid-template-columns:1fr}.app aside{display:none}main{padding:14px}.grid-2{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside><div class="brand"><div><b>Memorium</b><small>메모리움</small></div></div>
+      <nav><a href="/"><span>▦</span>오늘의 기록</a><a href="/memory"><span>◷</span>기억 분석</a><a href="/media"><span>▧</span>미디어 관리</a><a class="active" href="/settings"><span>⚙</span>설정</a></nav>
+    </aside>
+
+    <main>
+      <div class="top">
+        <div class="title">
+          <p class="eyebrow">Control room</p>
+          <h1>설정</h1>
+          <p class="sub">알림, 음악, 슬라이드 흐름을 조절합니다.</p>
+        </div>
+        <div class="notice">변경 후 저장 버튼을 누르면 바로 적용됩니다.</div>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="flash">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <!-- 1행: 복약 알림 + 정각 알림 + 음악 설정 (3칸으로 묶어서 카드 비율 개선) -->
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-head">
+            <div><h2>복약 알림</h2><p class="sub">필요한 시간에 알림을 울립니다.</p></div>
+            <span class="ico-badge">♥</span>
+          </div>
+
+          {% if settings.medicine_times %}
+          <div class="med-list">
+          {% for t in settings.medicine_times %}
+          <div class="row-item">
+            <span>{{ '오전' if t.hour < 12 else '오후' }} {{ t.hour if t.hour <= 12 else t.hour - 12 }}시{% if t.minute > 0 %} {{ t.minute }}분{% endif %}</span>
+            <form method="POST" onsubmit="return confirm('삭제할까요?')" style="margin:0">
+              <input type="hidden" name="action" value="delete_medicine">
+              <input type="hidden" name="idx" value="{{ loop.index0 }}">
+              <button type="submit" class="btn btn-danger">삭제</button>
+            </form>
+          </div>
+          {% endfor %}
+          </div>
+          {% else %}
+          <p style="text-align:center;color:#9aa39a;font-size:10px;padding:10px 0">설정된 복약 시간이 없어요.</p>
+          {% endif %}
+
+          <form method="POST">
+            <p style="font-size:10px;font-weight:800;color:#5d695b;margin:12px 0 6px">새 복약 시간 추가</p>
+            <div id="medicine-list">
+              <div class="field-row">
+                <div><label style="font-size:9px;color:#8a9588">시</label><input type="number" name="med_hour" min="0" max="23" value="8"></div>
+                <span class="colon">:</span>
+                <div><label style="font-size:9px;color:#8a9588">분</label><input type="number" name="med_minute" min="0" max="59" value="0"></div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-ghost" onclick="addMedicine()" style="margin-bottom:8px">＋ 시간 더 추가</button>
+            <button type="submit" class="btn btn-dark">복약 시간 저장</button>
+          </form>
+        </div>
+
+        <form method="POST" class="card">
+          <input type="hidden" name="section" value="chime">
+          <div class="card-head">
+            <div><h2>정각 알림</h2><p class="sub">오전 7시~오후 9시까지 매 정각에 시간을 알려줍니다.</p></div>
+            <span class="ico-badge">◷</span>
+          </div>
+          <div class="status-box">현재 상태: {% if settings.chime_enabled %}켜짐{% else %}꺼짐{% endif %}</div>
+          <label class="toggle-row">
+            <input type="checkbox" name="chime_enabled" id="chime" {% if settings.chime_enabled %}checked{% endif %}>
+            <span class="toggle-track"></span> 정각 알림 사용
+          </label>
+          <button type="submit" class="btn btn-dark">정각 알림 저장</button>
+        </form>
+
+        <form method="POST" class="card">
+          <input type="hidden" name="section" value="music">
+          <div class="card-head">
+            <div><h2>음악 설정</h2><p class="sub">얼굴이 보이면 음악을 자동 재생합니다.</p></div>
+            <span class="ico-badge">♪</span>
+          </div>
+          <div class="status-box">현재 상태: {% if settings.face_auto_music is not defined or settings.face_auto_music %}자동 재생{% else %}수동 재생{% endif %}</div>
+          <label class="toggle-row">
+            <input type="checkbox" name="face_auto_music" id="face_music" {% if settings.face_auto_music is not defined or settings.face_auto_music %}checked{% endif %}>
+            <span class="toggle-track"></span> 자동 재생 사용
+          </label>
+          <button type="submit" class="btn btn-dark">음악 설정 저장</button>
+        </form>
+      </div>
+
+      <!-- 2행: 선다운 + 슬라이드속도 + 전체저장 (1행과 동일하게 3칸) -->
+      <div class="grid-3">
+        <form method="POST" class="card">
+          <input type="hidden" name="section" value="sundowner">
+          <div class="card-head">
+            <div><h2>선다운 모드</h2><p class="sub">저녁엔 차분한 음악으로 전환합니다.</p></div>
+            <span class="ico-badge">☾</span>
+          </div>
+          <div class="grid-2-inline">
+            <label class="toggle-row" style="margin-bottom:0">
+              <input type="checkbox" name="sundowner_enabled" id="sundowner" {% if settings.sundowner_enabled %}checked{% endif %}>
+              <span class="toggle-track"></span> 선다운
+            </label>
+            <label class="toggle-row" style="margin-bottom:0">
+              <input type="checkbox" name="sundowner_auto_music" id="sundowner_music" {% if settings.sundowner_auto_music is not defined or settings.sundowner_auto_music %}checked{% endif %}>
+              <span class="toggle-track"></span> 음악 전환
+            </label>
+          </div>
+          <div class="grid-2-inline">
+            <div class="field"><label>시작 시</label><input type="number" name="sundowner_hour" id="sd_hour" min="0" max="23" value="{{ settings.sundowner_hour }}"></div>
+            <div class="field"><label>시작 분</label><input type="number" name="sundowner_minute" id="sd_minute" min="0" max="59" value="{{ settings.sundowner_minute or 0 }}"></div>
+          </div>
+          <div class="grid-2-inline">
+            <div class="field"><label>종료 시</label><input type="number" name="sundowner_end_hour" id="sd_end_hour" min="0" max="23" value="{{ settings.sundowner_end_hour or 21 }}"></div>
+            <div class="field"><label>종료 분</label><input type="number" name="sundowner_end_minute" id="sd_end_minute" min="0" max="59" value="{{ settings.sundowner_end_minute or 0 }}"></div>
+          </div>
+          <button type="submit" class="btn btn-dark">선다운 모드 저장</button>
+        </form>
+
+        <form method="POST" class="card tint">
+          <input type="hidden" name="section" value="slide">
+          <div class="card-head">
+            <div><h2>슬라이드 속도</h2><p class="sub">사진이 넘어가는 간격 (영상은 끝까지 재생 후 전환)</p></div>
+            <span class="ico-badge on-white">⏱</span>
+          </div>
+          <div class="unit-input"><input type="number" name="slide_interval" id="slide_interval_input" min="3" max="60" value="{{ settings.slide_interval or 10 }}"><span style="font-size:10px;font-weight:800;color:#8a9588">초 간격</span></div>
+          <button type="submit" class="btn btn-dark">슬라이드 속도 저장</button>
+        </form>
+
+        <div class="card" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:10px">
+          <span class="ico-badge">⬒</span>
+          <p style="margin:0;font-size:11px;font-weight:800">위 설정을 한 번에 저장</p>
+          <p class="sub" style="margin:0">개별 저장 버튼을 이미 눌렀다면 안 눌러도 돼요.</p>
+          <button type="button" onclick="saveAllSettings()" class="btn btn-dark btn-block">전체 설정 저장</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function addMedicine() {
+      const list = document.getElementById('medicine-list');
+      const row = document.createElement('div');
+      row.className = 'field-row';
+      row.innerHTML = `
+        <div><label style="font-size:9px;color:#8a9588">시</label><input type="number" name="med_hour" min="0" max="23" value="8"></div>
+        <span class="colon">:</span>
+        <div><label style="font-size:9px;color:#8a9588">분</label><input type="number" name="med_minute" min="0" max="59" value="0"></div>
+      `;
+      list.appendChild(row);
+    }
+
+    // 전체 설정 저장 — 각 섹션 폼에 흩어진 현재 값들을 모아서 하나의 요청으로 제출 (기존 로직 그대로)
+    function saveAllSettings() {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/settings';
+
+      function addHidden(name, value) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      }
+
+      addHidden('section', 'all');
+      if (document.getElementById('chime').checked) addHidden('chime_enabled', 'on');
+      if (document.getElementById('face_music').checked) addHidden('face_auto_music', 'on');
+      addHidden('slide_interval', document.getElementById('slide_interval_input').value);
+      if (document.getElementById('sundowner').checked) addHidden('sundowner_enabled', 'on');
+      if (document.getElementById('sundowner_music').checked) addHidden('sundowner_auto_music', 'on');
+      addHidden('sundowner_hour', document.getElementById('sd_hour').value);
+      addHidden('sundowner_minute', document.getElementById('sd_minute').value);
+      addHidden('sundowner_end_hour', document.getElementById('sd_end_hour').value);
+      addHidden('sundowner_end_minute', document.getElementById('sd_end_minute').value);
+
+      document.body.appendChild(form);
+      form.submit();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>메모리움 미디어 관리</title>
+  <style>
+    :root{--ink:#263528;--muted:#80877e;--line:#e9ede8;--paper:#ffffff;--bg:#fbfcfa;--mint:#f2f5f0;--green:#24552c;--green2:#4e7947;--shadow:0 3px 10px rgba(43,57,45,.095)}
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(rgba(10,18,10,.4),rgba(10,18,10,.4)), url('/static/dashboard-bg.jpg') center/cover fixed no-repeat;font:12px/1.35 "Pretendard","Noto Sans KR",Arial,sans-serif;color:var(--ink);letter-spacing:-.25px}
+    .app{width:min(1440px,calc(100vw - 48px),calc((100vh - 48px) * 1.521));aspect-ratio:1080/710;margin:0;background:var(--bg);display:grid;grid-template-columns:164px 1fr;border:1px solid rgba(255,255,255,.5);border-radius:14px;box-shadow:0 45px 90px -20px rgba(0,0,0,.65),0 18px 40px rgba(0,0,0,.4);overflow:hidden}
+    aside{background:linear-gradient(180deg,#f8faf6,#fcfdfb);border-right:1px solid #e8ece6;padding:17px 18px;display:flex;flex-direction:column;overflow-y:auto}.brand{display:flex;gap:10px;align-items:center;margin:0 10px 22px}.brand b{font-size:20px;color:#233a29}.brand small{display:block;color:#838a80;font-size:10px;margin-top:2px}
+    nav a{display:flex;align-items:center;gap:12px;color:#566254;text-decoration:none;padding:10px 12px;border-radius:6px;margin:3px 0;font-size:11px}nav a span{font-size:15px;width:16px;text-align:center}nav a.active{background:linear-gradient(90deg,#2f6538,#214d2a);color:#fff;box-shadow:0 3px 7px rgba(59,91,57,.30)}
+    main{padding:14px 28px 24px;min-width:0;height:100%;overflow-y:auto;box-sizing:border-box}.top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:14px}.title p.eyebrow{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#8a9588;margin:0 0 4px}.title h1{font-size:18px;margin:0 0 4px}.title p.sub{font-size:10px;color:var(--muted);margin:0}
+    .stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat-box{background:#fff;border:1px solid #e8ece7;border-radius:10px;padding:10px 16px;text-align:center;box-shadow:var(--shadow)}.stat-box strong{display:block;font-size:16px}.stat-box small{font-size:9px;color:var(--muted)}
+    .flash{border-radius:10px;padding:9px 13px;font-size:11px;font-weight:700;margin-bottom:12px}
+    .flash.ok{background:#eef8ec;border:1px solid #c8ddc6;color:#31533a}
+    .flash.err{background:#fdecec;border:1px solid #f8d3d3;color:#c0392b}
+    .split-main{display:grid;grid-template-columns:1fr 300px;gap:14px}
+    .card{background:#fff;border:1px solid #e8ece7;border-radius:10px;box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+    .card.tint{background:#e7eee4;border-color:#dce6d8}
+    .card h2{font-size:13px;margin:0}
+    .card .sub{font-size:9px;color:#858d83;margin:2px 0 0}
+    .card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+    .input{border:1px solid #dfe7dc;background:#f7faf5;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:700;outline:none}
+    .input:focus{border-color:#60765d}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:8px;padding:8px 13px;font-size:10px;font-weight:700;border:1px solid transparent;cursor:pointer;text-decoration:none;white-space:nowrap}
+    .btn-dark{background:#24582d;color:#fff}
+    .btn-dark:hover{background:#1b4522}
+    .btn-green{background:#60765d;color:#fff}
+    .btn-green:hover{background:#4d614c}
+    .btn-danger{background:#fdecec;color:#d43f3f}
+    .btn-ghost{background:#f3f6f1;color:#536250}
+    .btn-block{width:100%}
+    .folder{background:#f3f6f1;border:1px solid #e2e9df;border-radius:14px;padding:14px;margin-bottom:12px}
+    .folder-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+    .folder-name{display:flex;align-items:center;gap:8px}
+    .folder-ico{width:32px;height:32px;border-radius:9px;background:#fff;color:#31533a;display:grid;place-items:center;font-size:14px}
+    .folder-name h3{margin:0;font-size:11px}
+    .folder-name p{margin:0;font-size:9px;color:#8a9588}
+    .upload-box{background:#fff;border:1px solid #e1e8df;border-radius:10px;padding:10px;margin-bottom:10px}
+    .chip-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+    .chip{display:inline-flex;align-items:center;gap:4px;border:1px solid #dfe7dc;background:#f7faf5;border-radius:999px;padding:5px 11px;font-size:9px;font-weight:700;color:#7e897d;cursor:pointer}
+    .chip.on{background:#e7eee4;color:#263829;border-color:#60765d}
+    .file-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .file-card{background:#fff;border:1px solid #e1e8df;border-radius:10px;padding:9px}
+    .file-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+    .file-ico{width:32px;height:32px;flex-shrink:0;border-radius:9px;background:#e7eee4;color:#60765d;display:grid;place-items:center;font-size:14px}
+    .file-name{font-size:9px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .tag-pill{display:inline-block;background:#eef4eb;color:#60765d;border-radius:999px;padding:2px 8px;font-size:8px;font-weight:700;margin:2px 3px 0 0}
+    .tag-pill.muted{color:#9aa39a}
+    .file-actions{display:flex;gap:6px}
+    .file-actions form{flex:1;margin:0}
+    .empty{text-align:center;color:#9aa39a;font-size:10px;padding:16px 0}
+    .modal{position:fixed;inset:0;background:rgba(20,30,20,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+    .modal.open{display:flex}
+    .modal-box{background:#fff;border-radius:16px;padding:22px;max-width:420px;width:100%}
+    .modal-box h3{margin:0 0 4px;font-size:14px}
+    .modal-box .fname{font-size:9px;color:#8a9588;margin-bottom:14px;word-break:break-all}
+    @media(max-width:900px){.app{grid-template-columns:1fr}.app aside{display:none}main{padding:14px}.split-main{grid-template-columns:1fr}.file-grid{grid-template-columns:1fr 1fr}.stat-strip{grid-template-columns:1fr 1fr}}
+    @media(max-width:520px){.file-grid{grid-template-columns:1fr}.stat-strip{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside><div class="brand"><div><b>Memorium</b><small>메모리움</small></div></div>
+      <nav><a href="/"><span>▦</span>오늘의 기록</a><a href="/memory"><span>◷</span>기억 분석</a><a class="active" href="/media"><span>▧</span>미디어 관리</a><a href="/settings"><span>⚙</span>설정</a></nav>
+    </aside>
+
+    <main>
+      <div class="top">
+        <div class="title">
+          <p class="eyebrow">Media library</p>
+          <h1>미디어 관리</h1>
+          <p class="sub">사진, 영상, 음악을 카테고리와 태그로 정리합니다.</p>
+        </div>
+        <div class="stat-strip">
+          <div class="stat-box"><strong>{{ categories|length }}</strong><small>사진 폴더</small></div>
+          <div class="stat-box"><strong>{{ video_categories|length }}</strong><small>영상 폴더</small></div>
+          <div class="stat-box"><strong>{{ music|length }}</strong><small>음악</small></div>
+        </div>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="flash {{ 'ok' if category == 'success' else 'err' }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <div class="split-main">
+        <div>
+          <!-- 사진 -->
+          <div class="card">
+            <div class="card-head">
+              <div><h2>사진</h2><p class="sub">카테고리 폴더별로 사진을 업로드합니다.</p></div>
+              <form method="POST" style="display:flex;gap:6px">
+                <input type="hidden" name="action" value="add_category">
+                <input type="text" name="category_name" placeholder="새 사진 폴더" class="input">
+                <button type="submit" class="btn btn-dark">＋ 추가</button>
+              </form>
+            </div>
+
+            {% if categories %}
+              {% for cat in categories %}
+              <div class="folder">
+                <div class="folder-head">
+                  <div class="folder-name"><span class="folder-ico">📁</span><div><h3>{{ cat }}</h3><p>{{ category_photos[cat]|length }}개 사진</p></div></div>
+                  <form method="POST" onsubmit="return confirm('{{ cat }} 카테고리와 사진 전체를 삭제할까요?')" style="margin:0">
+                    <input type="hidden" name="action" value="delete_category">
+                    <input type="hidden" name="category_name" value="{{ cat }}">
+                    <button type="submit" class="btn btn-danger">폴더 삭제</button>
+                  </form>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data" class="upload-box">
+                  <input type="hidden" name="action" value="upload_photos">
+                  <input type="hidden" name="category" value="{{ cat }}">
+                  <p style="font-size:9px;font-weight:800;color:#5d695b;margin:0 0 6px">추가 태그</p>
+                  <div class="chip-wrap tag-chip-container">
+                    {% for tag in all_tags %}
+                      {% if tag != cat %}
+                      <label class="chip upload-chip"><input type="checkbox" name="extra_tags" value="{{ tag }}" style="display:none"> {{ tag }}</label>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                  <div style="display:flex;gap:6px;margin-bottom:8px">
+                    <input type="text" placeholder="새 태그 직접 입력" class="input new-tag-input" style="flex:1">
+                    <button type="button" onclick="addTagChip(this)" class="btn btn-green">추가</button>
+                  </div>
+                  <div style="display:flex;gap:6px">
+                    <input type="file" name="files" multiple accept=".jpg,.jpeg,.png" class="input" style="flex:1">
+                    <button type="submit" class="btn btn-green">⬆ 업로드</button>
+                  </div>
+                </form>
+
+                {% if category_photos[cat] %}
+                <div class="file-grid">
+                  {% for f in category_photos[cat] %}
+                  {% set key = cat + '/' + f %}
+                  <div class="file-card">
+                    <div class="file-row">
+                      <div class="file-ico">🖼</div>
+                      <div style="min-width:0">
+                        <div class="file-name" title="{{ f }}">{{ f }}</div>
+                        <div>
+                          {% if key in tags and tags[key] %}
+                            {% for t in tags[key] %}<span class="tag-pill">{{ t }}</span>{% endfor %}
+                          {% else %}
+                            <span class="tag-pill">{{ cat }}</span><span class="tag-pill muted">(폴더 기본값)</span>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="file-actions">
+                      <button class="btn btn-ghost btn-block" data-key="{{ key }}" data-tags="{{ tags.get(key, []) | join(',') }}" onclick="openTagEdit(this)">편집</button>
+                      <form method="POST" onsubmit="return confirm('삭제할까요?')">
+                        <input type="hidden" name="action" value="delete_file">
+                        <input type="hidden" name="key" value="{{ key }}">
+                        <input type="hidden" name="folder" value="photos">
+                        <button type="submit" class="btn btn-danger btn-block">삭제</button>
+                      </form>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% else %}
+                <p class="empty">사진이 없어요. 업로드해 보세요.</p>
+                {% endif %}
+              </div>
+              {% endfor %}
+            {% else %}
+            <p class="empty">사진 카테고리가 없어요.</p>
+            {% endif %}
+          </div>
+
+          <!-- 영상 -->
+          <div class="card">
+            <div class="card-head">
+              <div><h2>영상</h2><p class="sub">짧은 영상도 같은 태그 체계로 관리합니다.</p></div>
+              <form method="POST" style="display:flex;gap:6px">
+                <input type="hidden" name="action" value="add_video_category">
+                <input type="text" name="category_name" placeholder="새 영상 폴더" class="input">
+                <button type="submit" class="btn btn-dark">＋ 추가</button>
+              </form>
+            </div>
+
+            {% if video_categories %}
+              {% for cat in video_categories %}
+              <div class="folder">
+                <div class="folder-head">
+                  <div class="folder-name"><span class="folder-ico">🎬</span><div><h3>{{ cat }}</h3><p>{{ category_videos[cat]|length }}개 영상</p></div></div>
+                  <form method="POST" onsubmit="return confirm('{{ cat }} 영상 카테고리를 삭제할까요?')" style="margin:0">
+                    <input type="hidden" name="action" value="delete_video_category">
+                    <input type="hidden" name="category_name" value="{{ cat }}">
+                    <button type="submit" class="btn btn-danger">폴더 삭제</button>
+                  </form>
+                </div>
+                <form method="POST" enctype="multipart/form-data" class="upload-box">
+                  <input type="hidden" name="action" value="upload_videos">
+                  <input type="hidden" name="category" value="{{ cat }}">
+                  <p style="font-size:9px;font-weight:800;color:#5d695b;margin:0 0 6px">추가 태그</p>
+                  <div class="chip-wrap tag-chip-container">
+                    {% for tag in all_tags %}
+                      {% if tag != cat %}
+                      <label class="chip upload-chip"><input type="checkbox" name="extra_tags" value="{{ tag }}" style="display:none"> {{ tag }}</label>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                  <div style="display:flex;gap:6px;margin-bottom:8px">
+                    <input type="text" placeholder="새 태그 직접 입력" class="input new-tag-input" style="flex:1">
+                    <button type="button" onclick="addTagChip(this)" class="btn btn-green">추가</button>
+                  </div>
+                  <div style="display:flex;gap:6px">
+                    <input type="file" name="files" multiple accept=".mp4,.avi,.mov" class="input" style="flex:1">
+                    <button type="submit" class="btn btn-green">⬆ 업로드</button>
+                  </div>
+                </form>
+                {% if category_videos[cat] %}
+                <div class="file-grid">
+                  {% for f in category_videos[cat] %}
+                  {% set key = "v:" + cat + "/" + f %}
+                  <div class="file-card">
+                    <div class="file-row">
+                      <div class="file-ico">▶</div>
+                      <div style="min-width:0">
+                        <div class="file-name" title="{{ f }}">{{ f }}</div>
+                        <div>
+                          {% if key in tags and tags[key] %}
+                            {% for t in tags[key] %}<span class="tag-pill">{{ t }}</span>{% endfor %}
+                          {% else %}
+                            <span class="tag-pill">{{ cat }}</span><span class="tag-pill muted">(폴더 기본값)</span>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="file-actions">
+                      <button class="btn btn-ghost btn-block" data-key="{{ key }}" data-tags="{{ tags.get(key, []) | join(',') }}" onclick="openTagEdit(this)">편집</button>
+                      <form method="POST" onsubmit="return confirm('삭제할까요?')">
+                        <input type="hidden" name="action" value="delete_file">
+                        <input type="hidden" name="key" value="{{ key }}">
+                        <input type="hidden" name="folder" value="videos">
+                        <button type="submit" class="btn btn-danger btn-block">삭제</button>
+                      </form>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% else %}
+                <p class="empty">영상이 없어요. 업로드해 보세요.</p>
+                {% endif %}
+              </div>
+              {% endfor %}
+            {% else %}
+            <p class="empty">영상 카테고리가 없어요.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div>
+          <!-- 음악 -->
+          <div class="card tint">
+            <h2>음악</h2>
+            <p class="sub" style="margin-bottom:12px">슬라이드에 함께 흐를 음악입니다.</p>
+            <form method="POST" enctype="multipart/form-data" style="margin-bottom:12px">
+              <input type="hidden" name="action" value="upload_music">
+              <input type="file" name="files" multiple accept=".mp3,.wav" class="input btn-block" style="margin-bottom:8px;width:100%">
+              <button type="submit" class="btn btn-dark btn-block">♪ 음악 업로드</button>
+            </form>
+            {% for f in music %}
+            <div class="file-card" style="margin-bottom:8px">
+              <div class="file-name" title="{{ f }}" style="margin-bottom:8px">{{ f }}</div>
+              <form method="POST" onsubmit="return confirm('삭제할까요?')">
+                <input type="hidden" name="action" value="delete_file">
+                <input type="hidden" name="key" value="{{ f }}">
+                <input type="hidden" name="folder" value="music">
+                <button type="submit" class="btn btn-danger btn-block">삭제</button>
+              </form>
+            </div>
+            {% endfor %}
+            {% if not music %}<p class="empty">업로드된 음악이 없어요.</p>{% endif %}
+          </div>
+
+          <!-- 태그 팔레트 -->
+          <div class="card">
+            <h2 style="margin-bottom:10px">태그 팔레트</h2>
+            {% if all_tags %}
+              {% for tag in all_tags %}<span class="tag-pill" style="font-size:9px;padding:4px 10px">{{ tag }}</span>{% endfor %}
+            {% else %}
+            <p class="empty">아직 태그가 없어요.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="tag-modal">
+    <div class="modal-box">
+      <h3>태그 편집</h3>
+      <p class="fname" id="modal-filename"></p>
+      <form method="POST" id="tag-edit-form">
+        <input type="hidden" name="action" value="update_tags">
+        <input type="hidden" name="key" id="modal-key-input">
+        <p style="font-size:9px;font-weight:800;color:#5d695b;margin:0 0 6px">태그 선택</p>
+        <div style="max-height:160px;overflow-y:auto;background:#f3f6f1;border-radius:12px;padding:10px;margin-bottom:12px">
+          <div class="chip-wrap" id="modal-chips">
+            {% for tag in all_tags %}
+            <label class="chip modal-chip" style="background:#fff"><input type="checkbox" name="tags" value="{{ tag }}" style="display:none"> {{ tag }}</label>
+            {% endfor %}
+          </div>
+        </div>
+        <input type="text" name="new_tag" placeholder="새 태그 직접 입력" class="input" style="width:100%;margin-bottom:12px">
+        <div style="display:flex;justify-content:flex-end;gap:8px">
+          <button type="button" class="btn btn-ghost" onclick="closeModal()">취소</button>
+          <button type="submit" class="btn btn-dark">저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // 업로드 폼(사진/영상)의 "새 태그 직접 입력" + "추가" 버튼 (기존 로직 그대로, 클래스명만 변경)
+    function addTagChip(button) {
+      const wrap  = button.closest('.upload-box');
+      const input = wrap.querySelector('.new-tag-input');
+      const container = wrap.querySelector('.tag-chip-container');
+      const value = input.value.trim();
+      if (!value) return;
+
+      const existing = Array.from(container.querySelectorAll('.upload-chip')).find(
+        label => label.textContent.trim() === value
+      );
+      if (existing) {
+        existing.querySelector('input[type="checkbox"]').checked = true;
+        existing.classList.add('on');
+        input.value = '';
+        return;
+      }
+
+      const label = document.createElement('label');
+      label.className = 'chip upload-chip on';
+      label.innerHTML = `<input type="checkbox" name="extra_tags" value="${value}" style="display:none" checked> ${value}`;
+      container.appendChild(label);
+      setupChipClick(label);
+      input.value = '';
+    }
+
+    document.querySelectorAll('.new-tag-input').forEach(input => {
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addTagChip(input.nextElementSibling);
+        }
+      });
+    });
+
+    // 칩 클릭하면 체크박스 토글 + on 클래스 토글
+    function setupChipClick(label) {
+      label.addEventListener('click', function(e) {
+        e.preventDefault();
+        const input = label.querySelector('input[type="checkbox"]');
+        input.checked = !input.checked;
+        label.classList.toggle('on', input.checked);
+      });
+    }
+    document.querySelectorAll('.upload-chip, .modal-chip').forEach(setupChipClick);
+
+    function openTagEdit(btn) {
+      const key = btn.dataset.key;
+      const currentTags = btn.dataset.tags ? btn.dataset.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
+      document.getElementById('modal-filename').textContent = key;
+      document.getElementById('modal-key-input').value = key;
+      document.querySelectorAll('.modal-chip').forEach(label => {
+        const input = label.querySelector('input[type="checkbox"]');
+        input.checked = currentTags.includes(input.value);
+        label.classList.toggle('on', input.checked);
+      });
+      document.querySelector('#tag-edit-form input[name="new_tag"]').value = '';
+      document.getElementById('tag-modal').classList.add('open');
+    }
+    function closeModal() {
+      document.getElementById('tag-modal').classList.remove('open');
+    }
+    document.getElementById('tag-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+  </script>
+</body>
+</html>

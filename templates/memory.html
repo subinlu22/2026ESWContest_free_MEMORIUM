@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta http-equiv="refresh" content="10">
+  <title>메모리움 기억</title>
+  <style>
+    :root{--ink:#263528;--muted:#80877e;--line:#e9ede8;--paper:#ffffff;--bg:#fbfcfa;--mint:#f2f5f0;--green:#24552c;--green2:#4e7947;--shadow:0 3px 10px rgba(43,57,45,.095)}
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(rgba(10,18,10,.4),rgba(10,18,10,.4)), url('/static/dashboard-bg.jpg') center/cover fixed no-repeat;font:12px/1.35 "Pretendard","Noto Sans KR",Arial,sans-serif;color:var(--ink);letter-spacing:-.25px}
+    .app{width:min(1440px,calc(100vw - 48px),calc((100vh - 48px) * 1.521));aspect-ratio:1080/710;margin:0;background:var(--bg);display:grid;grid-template-columns:164px 1fr;border:1px solid rgba(255,255,255,.5);border-radius:14px;box-shadow:0 45px 90px -20px rgba(0,0,0,.65),0 18px 40px rgba(0,0,0,.4);overflow:hidden}
+    aside{background:linear-gradient(180deg,#f8faf6,#fcfdfb);border-right:1px solid #e8ece6;padding:17px 18px;display:flex;flex-direction:column;overflow-y:auto}.brand{display:flex;gap:10px;align-items:center;margin:0 10px 22px}.brand b{font-size:20px;color:#233a29}.brand small{display:block;color:#838a80;font-size:10px;margin-top:2px}
+    nav a{display:flex;align-items:center;gap:12px;color:#566254;text-decoration:none;padding:10px 12px;border-radius:6px;margin:3px 0;font-size:11px}nav a span{font-size:15px;width:16px;text-align:center}nav a.active{background:linear-gradient(90deg,#2f6538,#214d2a);color:#fff;box-shadow:0 3px 7px rgba(59,91,57,.30)}
+    main{padding:14px 28px 24px;min-width:0;height:100%;overflow:hidden;box-sizing:border-box;display:flex;flex-direction:column}.top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:14px;flex:0 0 auto}.title p.eyebrow{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#8a9588;margin:0 0 4px}.title h1{font-size:18px;margin:0 0 4px}.title p.sub{font-size:10px;color:var(--muted);margin:0}
+    .stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat-box{background:#fff;border:1px solid #e8ece7;border-radius:10px;padding:10px;text-align:center;box-shadow:var(--shadow)}.stat-box strong{display:block;font-size:16px}.stat-box small{font-size:9px;color:var(--muted)}
+    .flash{background:#eef8ec;border:1px solid #c8ddc6;color:#31533a;border-radius:10px;padding:9px 13px;font-size:11px;font-weight:700;margin-bottom:12px}
+    .split-main{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;flex:1;min-height:0}
+    .col{display:flex;flex-direction:column;gap:14px;min-height:0}
+    .col .card{display:flex;flex-direction:column;min-height:0}
+    .col .card.grow{flex:1 1 0}
+    .col .card.fixed{flex:0 0 auto}
+    .scroll-y{overflow-y:auto;min-height:0}
+    .card{background:#fff;border:1px solid #e8ece7;border-radius:10px;box-shadow:var(--shadow)}
+    .panel{padding:16px}.panel h2{font-size:13px;margin:0 0 2px}.sub{font-size:9px;color:#858d83;margin-bottom:12px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:8px;padding:8px 13px;font-size:10px;font-weight:700;border:1px solid transparent;cursor:pointer;text-decoration:none}
+    .btn-danger{background:#fdecec;color:#d43f3f;border-color:#f8d3d3}
+    .btn-block{width:100%}
+    .tag-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;overflow-y:auto;min-height:0;align-content:start}
+    .tag-card{background:#f3f6f1;border:1px solid #e2e9df;border-radius:14px;padding:12px}
+    .tag-card h3{margin:0;font-size:13px}
+    .tag-card .meta{font-size:9px;color:#8a9588;margin:2px 0 10px}
+    .tag-track{height:8px;background:#fff;border-radius:9px;overflow:hidden;margin-bottom:10px}
+    .tag-track i{display:block;height:100%;background:#60765d}
+    .empty{text-align:center;color:#9aa39a;font-size:11px;padding:24px 0}
+    .green-panel{background:#9fa99d;color:#fff;border-radius:10px;padding:16px;display:flex;flex-direction:column;min-height:0}
+    .green-panel .table-wrap{flex:1;overflow-y:auto;min-height:0}
+    .table{width:100%;border-collapse:collapse;font-size:10px}
+    .table th{text-align:left;color:rgba(255,255,255,.65);font-weight:700;padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.15)}
+    .table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.12);font-weight:700}
+    .bubble{background:#f3f6f1;border-radius:8px;padding:10px;margin:7px 0;font-size:10px}
+    .bubble .meta{display:flex;justify-content:space-between;color:#929c91;font-size:8px;margin-bottom:3px}
+    .summary-num{background:rgba(255,255,255,.6);border-radius:10px;padding:12px;text-align:center;margin-bottom:12px}
+    .summary-num strong{display:block;font-size:22px;color:#273527}
+    .summary-num small{font-size:9px;color:#879386}
+    .word-row{display:flex;justify-content:space-between;background:rgba(255,255,255,.6);border-radius:8px;padding:7px 11px;margin:5px 0;font-size:10px;font-weight:700}
+    @media(max-width:850px){.app{grid-template-columns:1fr}.app aside{display:none}main{padding:14px}.split-main,.tag-grid,.stat-strip{grid-template-columns:1fr 1fr}}
+    @media(max-width:520px){.split-main,.tag-grid,.stat-strip{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside><div class="brand"><div><b>Memorium</b><small>메모리움</small></div></div>
+      <nav><a href="/"><span>▦</span>오늘의 기록</a><a class="active" href="/memory"><span>◷</span>기억 분석</a><a href="/media"><span>▧</span>미디어 관리</a><a href="/settings"><span>⚙</span>설정</a></nav>
+    </aside>
+
+    <main>
+      <div class="top">
+        <div class="title">
+          <p class="eyebrow">Memory map</p>
+          <h1>기억</h1>
+          <p class="sub">반응과 시청 기록을 태그별로 살펴봅니다.</p>
+        </div>
+        <div class="stat-strip">
+          <div class="stat-box"><strong>{{ viewing.today_count }}회</strong><small>오늘 응시 횟수</small></div>
+          <div class="stat-box"><strong>{% if viewing.today_minutes >= 60 %}{{ (viewing.today_minutes // 60)|int }}시간 {{ (viewing.today_minutes % 60)|round(0)|int }}분{% else %}{{ viewing.today_minutes|round(0)|int }}분{% endif %}</strong><small>오늘 응시 시간</small></div>
+          <div class="stat-box"><strong>{{ viewing.total_count }}회</strong><small>누적 응시 횟수</small></div>
+          <div class="stat-box"><strong>{% if viewing.total_minutes >= 60 %}{{ (viewing.total_minutes // 60)|int }}시간 {{ (viewing.total_minutes % 60)|round(0)|int }}분{% else %}{{ viewing.total_minutes|round(0)|int }}분{% endif %}</strong><small>누적 시간</small></div>
+        </div>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="flash">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <div class="split-main">
+        <div class="col">
+          <!-- 태그별 선호도 -->
+          <div class="card panel grow">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex:0 0 auto">
+              <div>
+                <h2>태그별 선호도</h2>
+                <p class="sub" style="margin:2px 0 0">높은 비율일수록 더 자주 반응한 주제입니다.</p>
+              </div>
+              {% if memory %}
+              <form method="POST" onsubmit="return confirm('모든 기억을 초기화할까요?')">
+                <input type="hidden" name="action" value="reset_all">
+                <button type="submit" class="btn btn-danger">전체 초기화</button>
+              </form>
+              {% endif %}
+            </div>
+
+            {% if memory %}
+            <div class="tag-grid">
+              {% for tag, count, pct in memory %}
+              <div class="tag-card">
+                <h3>{{ tag }}</h3>
+                <p class="meta">{{ count }}회 누적 · {{ pct }}%</p>
+                <div class="tag-track"><i style="width:{{ pct }}%"></i></div>
+                <form method="POST" onsubmit="return confirm('{{ tag }} 태그 기억을 초기화할까요?')">
+                  <input type="hidden" name="action" value="reset_tag">
+                  <input type="hidden" name="tag" value="{{ tag }}">
+                  <button type="submit" class="btn btn-danger btn-block">이 태그 초기화</button>
+                </form>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty">아직 기록된 기억이 없어요. 슬라이드를 실행하고 반응이 쌓이면 여기에 나타나요.</p>
+            {% endif %}
+          </div>
+
+          <!-- 응시 기록 -->
+          <div class="green-panel grow">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex:0 0 auto">
+              <div>
+                <h2 style="margin:0;font-size:13px">응시 기록</h2>
+                <p style="margin:3px 0 0;font-size:9px;color:rgba(255,255,255,.65)">얼굴 인식 후 머문 시간을 최근순으로 보여줍니다.</p>
+              </div>
+              <span>◉</span>
+            </div>
+            {% if viewing.recent %}
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th>날짜</th><th>시작</th><th>시간</th></tr></thead>
+                <tbody>
+                  {% for record in viewing.recent %}
+                  <tr><td>{{ record.date }}</td><td>{{ record.start }}</td><td>{{ record.duration_minutes }}분</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <p class="empty" style="color:rgba(255,255,255,.7)">응시 기록이 없어요.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="col">
+          <!-- 오늘 음성 기록 -->
+          <div class="card panel grow">
+            <div style="flex:0 0 auto">
+              <h2>오늘 음성 기록</h2>
+              <p class="sub">사진을 보며 남긴 말씀이 기록됩니다.</p>
+            </div>
+            <div class="scroll-y" style="flex:1">
+            {% if speech %}
+              {% for record in speech %}
+              <div class="bubble">
+                <div class="meta"><span>{{ record.date }}</span><span>{{ record.time }}</span></div>
+                <p style="margin:0;font-weight:600">{{ record.text }}</p>
+              </div>
+              {% endfor %}
+            {% else %}
+            <p class="empty">아직 기록된 말씀이 없어요.</p>
+            {% endif %}
+            </div>
+          </div>
+
+          <!-- 오늘의 대화 요약 -->
+          <div class="card panel fixed" style="background:#e7eee4">
+            <h2>오늘의 대화 요약</h2>
+            <p class="sub">오늘 음성 기록을 분석한 요약입니다.</p>
+
+            {% if speech_summary.count > 0 %}
+            <div class="summary-num">
+              <strong>{{ speech_summary.count }}</strong>
+              <small>오늘 말씀하신 횟수</small>
+            </div>
+            {% if speech_summary.top_words %}
+            <p style="font-size:10px;font-weight:800;color:#5d695b;margin:0 0 6px">자주 하신 말</p>
+            {% for word, count in speech_summary.top_words %}
+            <div class="word-row"><span>{{ word }}</span><span style="color:#8a9588;font-weight:700">{{ count }}회</span></div>
+            {% endfor %}
+            {% endif %}
+            {% else %}
+            <p class="empty">오늘 아직 기록된 말씀이 없어요.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    // 10초마다 자동 새로고침될 때, 이제 스크롤은 main 전체가 아니라
+    // 각 카드 내부(.tag-grid, .table-wrap, .scroll-y)에서 따로 일어나므로
+    // 그 각각의 스크롤 위치를 저장/복원함 (기존 로직을 다중 박스용으로 확장)
+    (function() {
+      const boxes = document.querySelectorAll('.tag-grid, .table-wrap, .scroll-y');
+      boxes.forEach(function(box, i) {
+        const key = 'memory-scroll-' + i;
+        const saved = sessionStorage.getItem(key);
+        if (saved) box.scrollTop = parseInt(saved, 10);
+        window.addEventListener('beforeunload', function() {
+          sessionStorage.setItem(key, box.scrollTop);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
